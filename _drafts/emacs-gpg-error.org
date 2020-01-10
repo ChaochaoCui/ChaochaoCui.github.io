@@ -1,0 +1,9 @@
+* Url[https://elpa.gnu.org/packages/gnu-elpa-keyring-update.html]
+  error message: _images/emaces-gpg-error.png
+
+   - Fetch the new key manually, e.g. with something like:
+     gpg --homedir ~/.emacs.d/elpa/gnupg --receive-keys 066DAFCB81E42C40
+     
+   - Modify the expiration date of the old key, e.g. with something like:
+     gpg --homedir ~/.emacs.d/elpa/gnugp --
+

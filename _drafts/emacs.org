@@ -1,0 +1,5 @@
+emacs init file :
+    ~/.emacs
+    ~/.emacs.el
+    ~/.emacs.d/init.el
+
