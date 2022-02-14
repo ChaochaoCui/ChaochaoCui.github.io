@@ -1,0 +1,53 @@
+@startuml
+title system/core/init/init.cpp
+start
+: 设置环境变量 PATH = _PATH_DEFPATH;
+if (is_first_stage) then (yes)
+    : 挂载文件系统 /dev /dev/pts /sys /sys/fs/selinux;
+    : 创建设备 /dev/kmsg /dev/random /dev/urandom;
+    : 初始化Kernel Log;
+    : DoFirstStageMount();
+    : SetInitAvbVersionInRecovery();
+    : selinux_initialize(true);
+    : 恢复/init 到 init domain;
+    : 设置环境变量 INIT_SECOND_STAGE=true, INIT_STARTED_AT = xxxx;
+    : execv("/init");
+    stop
+else (no)
+    : InitKernelLogging;
+    : Set up a session keyring;
+    : touch /dev/.booting;
+    : property_init();
+    : process kernel devicetree and kernel cmdline;
+    : export_kernel_boot_props();
+    : selinux_initialize(false);
+    : selinux_resotre_context();
+    : signal_handler_init();
+    : property_load_boot_defaults();
+    : export_oem_lock_status();
+    : start_property_service();
+    : set_usb_controller();
+    : ActionManger ServiceManager Parser
+      通过Parser加载初始化脚本
+        /init.rc 
+        /system/etc/init/*.rc 
+        /vendor/etc/init/*.rc /odm/etc/init/*.rc;
+    : Trigger "early-init" Event;
+    : wait_for_coldboot_done_action;
+    : mix_hwrng_into_linux_rng_action;
+    : set_kptr_restrict_action;
+    : keychord_init_action--多点触控; 
+    : console_init_action;
+    : Trigger "init" Event;
+    : mix_hwrng_into_linux_rng_action;
+    if (ro.bootmode == "charger") then (yes)
+        : Trigger charger Event;
+    else 
+        : Trigger late-init Event;
+    endif
+    : queue_property_triggers_action;
+    while (yes)
+    : wait client request;
+    endwhile
+endif
+@enduml
